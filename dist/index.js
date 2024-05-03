@@ -29212,6 +29212,14 @@ module.exports = require("buffer");
 
 /***/ }),
 
+/***/ 2081:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");
+
+/***/ }),
+
 /***/ 6206:
 /***/ ((module) => {
 
@@ -31080,6 +31088,7 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(8021);
 const github = __nccwpck_require__(4366);
+const { execSync } = __nccwpck_require__(2081);
 
 // List all existing tags.
 // Filter tags that match the current app's pattern.
@@ -31087,12 +31096,35 @@ const github = __nccwpck_require__(4366);
 // Sort them to find the highest version.
 // Increment the version based on your versioning scheme (e.g., semantic versioning).
 
-function main() {
-    const tagFormat = core.getInput('tag-format');
-    console.log(`Tag format: ${tagFormat}`);
+/**
+ *
+ * Fetches all git tags from the repository and returns them as an array.
+ * @returns {string[]} An array of git tags.
+ */
+function getTags() {
+    return execSync('git fetch --tags && git tag').toString().split('\n').filter(Boolean);
 }
 
-main();
+
+try {
+    // Get the 'tag-format' input from the workflow file.
+    const tagFormat = core.getInput('tag-format');
+
+    try {
+        // Get all tags from the repository.
+        const tags = getTags();
+
+        if (tags.length > 0) {
+            tags.forEach(tag => console.log(tag));
+        } else {
+            console.log('No tags found.');
+        }
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+} catch (error) {
+    core.setFailed(error.message);
+}
 })();
 
 module.exports = __webpack_exports__;

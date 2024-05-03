@@ -1,4 +1,5 @@
-const core = require('@actions/core')
+const core = require('@actions/core');
+const github = require('@actions/github');
 
 // List all existing tags.
 // Filter tags that match the current app's pattern.

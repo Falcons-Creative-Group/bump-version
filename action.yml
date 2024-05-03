@@ -1,0 +1,13 @@
+name: 'Automated version bump for internal monorepo'
+description: 'Automated version bump for internal monorepo'
+inputs:
+  tag-fromat:
+    description: 'Tag format'
+    required: true
+    default: 'v'
+outputs:
+  version:
+    description: 'Version'
+runs:
+  using: 'node20'
+  main: 'index.js'

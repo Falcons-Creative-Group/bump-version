@@ -1,7 +1,7 @@
 name: 'Automated version bump for internal monorepo'
 description: 'Automated version bump for internal monorepo'
 inputs:
-  tag-fromat:
+  tag-format:
     description: 'Tag format'
     required: true
     default: 'v'

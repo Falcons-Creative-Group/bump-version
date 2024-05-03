@@ -1,4 +1,6 @@
-// //List all existing tags.
+const core = require('@actions/core');
+
+// List all existing tags.
 // Filter tags that match the current app's pattern.
 // Extract the version part from these tags.
 // Sort them to find the highest version.

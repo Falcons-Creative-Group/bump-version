@@ -9,5 +9,5 @@ outputs:
   version:
     description: 'Version'
 runs:
-  using: 'node20'
+  using: 'node16'
   main: 'index.js'

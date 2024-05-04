@@ -26,7 +26,7 @@ function generateRegexPattern(formatString) {
     // Replace placeholders with actual year and month
     return formatString.replace('${year}', year)
                        .replace('${month}', month)
-                       .replace('${rev}', '\\d+');
+                       .replace('${rev}', '(\\d+)');
 }
 
 /**
@@ -67,15 +67,11 @@ function getTags(pattern) {
  * @param {string} tagFormat The format string for the tag which includes a ${revision} placeholder for the revision number.
  * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
  */
-function getNextVersion(tagArray, tagFormat) {
+function getNextVersion(tagArray, tagFormat, pattern) {
     if (tagArray.length === 0) {
         // If no tags are present, return the tag with revision number set to 1
-        return tagFormat.replace('${revision}', '1');
+        return tagFormat.replace('${rev}', '1');
     }
-
-    // Create a regular expression to match the revision part of the tag based on the provided format
-    // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+)
-    const revisionRegex = new RegExp(tagFormat.replace('${revision}', '(\\d+)').replace(/\./g, '\\.'));
 
     // Initialize the highest revision number
     let highestRevision = 0;
@@ -83,7 +79,7 @@ function getNextVersion(tagArray, tagFormat) {
     // Iterate over each tag in the array
     tagArray.forEach(tag => {
         // Match the tag against the regex
-        const match = tag.match(revisionRegex);
+        const match = tag.match(pattern);
         if (match) {
             // Parse the revision number and compare it to the current highest number
             const revisionNumber = parseInt(match[1], 10);
@@ -108,8 +104,8 @@ try {
     const tags = getTags(regexPattern);
     console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);
 
-    const nextVersion = getNextVersion(tags, tagFormat);
-    console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
+    // const nextVersion = getNextVersion(tags, tagFormat);
+    // console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
 
 } catch (error) {
     core.setFailed(error.message);

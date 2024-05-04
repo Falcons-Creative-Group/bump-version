@@ -77,9 +77,9 @@ function getNextVersion(tagArray, tagFormat) {
         return tagFormat.replace('${rev}', '1');
     }
 
-    // Generate regex pattern to be used to filter tags
-    const pattern = tagFormat.replace('${rev}', '\\d+');
-    console.log('\x1b[33m%s\x1b[0m', `Regex pattern: ${pattern}`);
+    // Create a regular expression to match the revision part of the tag based on the provided format
+    // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+)
+    const revisionRegex = new RegExp(tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.'));
 
     // Initialize the highest revision number
     let highestRevision = 0;
@@ -87,7 +87,7 @@ function getNextVersion(tagArray, tagFormat) {
     // Iterate over each tag in the array
     tagArray.forEach(tag => {
         // Match the tag against the regex
-        const match = tag.match(pattern);
+        const match = tag.match(revisionRegex);
         if (match) {
             // Parse the revision number and compare it to the current highest number
             const revisionNumber = parseInt(match[1], 10);

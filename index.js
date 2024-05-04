@@ -13,20 +13,20 @@ console.log('\x1b[33m%s\x1b[0m', `Tag format: ${tagFormat}`);
 // Sort them to find the highest version.
 // Increment the version based on your versioning scheme (e.g., semantic versioning).
 
+
 /**
- * Generate regex pattern to be used to filter tags.
- * @param {string} formatString.
- * @returns {string} regex pattern to be used to filter tags.
+ * Resolves the tag format by replacing placeholders with actual year and month values.
+ * @param {string} tagFormat
+ * @returns {string} resolved tag format.
  */
-function generateRegexPattern(formatString) {
+function resolveTagFormat(tagFormat) {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // +1 because getMonth() is zero-indexed
 
     // Replace placeholders with actual year and month
-    return formatString.replace('${year}', year)
+    return tagFormat.replace('${year}', year)
                        .replace('${month}', month)
-                       .replace('${rev}', '(\\d+)');
 }
 
 /**
@@ -35,7 +35,11 @@ function generateRegexPattern(formatString) {
  * @param {string} [pattern] The optional regex pattern to filter the tags.
  * @returns {string[]} An array of tags that match the given pattern, or all tags if no pattern is provided.
  */
-function getTags(pattern) {
+function getTags(tagFormat) {
+    // Generate regex pattern to be used to filter tags
+    const pattern = tagFormat.replace('${rev}', '\\d+');
+    console.log('\x1b[33m%s\x1b[0m', `Regex pattern: ${pattern}`);
+
     try {
         // Fetch all tags from remote to ensure the local repository is up to date
         execSync('git fetch --tags');
@@ -67,11 +71,15 @@ function getTags(pattern) {
  * @param {string} tagFormat The format string for the tag which includes a ${revision} placeholder for the revision number.
  * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
  */
-function getNextVersion(tagArray, tagFormat, pattern) {
+function getNextVersion(tagArray, tagFormat) {
     if (tagArray.length === 0) {
         // If no tags are present, return the tag with revision number set to 1
         return tagFormat.replace('${rev}', '1');
     }
+
+    // Generate regex pattern to be used to filter tags
+    const pattern = tagFormat.replace('${rev}', '\\d+');
+    console.log('\x1b[33m%s\x1b[0m', `Regex pattern: ${pattern}`);
 
     // Initialize the highest revision number
     let highestRevision = 0;
@@ -93,19 +101,17 @@ function getNextVersion(tagArray, tagFormat, pattern) {
     const nextRevisionNumber = highestRevision + 1;
 
     // Return the new tag with the incremented revision number
-    return tagFormat.replace('${revision}', nextRevisionNumber);
+    return tagFormat.replace('${rev}', nextRevisionNumber);
 }
 
 try {
-    // Generate regex pattern to be used to filter tags
-    const regexPattern = generateRegexPattern(tagFormat);
-    console.log('\x1b[33m%s\x1b[0m', `Regex pattern: ${regexPattern}`);
+    const resolvedTagFormat = resolveTagFormat(tagFormat);
 
-    const tags = getTags(regexPattern);
+    const tags = getTags(resolvedTagFormat);
     console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);
 
-    // const nextVersion = getNextVersion(tags, tagFormat);
-    // console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
+    const nextVersion = getNextVersion(tags, resolvedTagFormat);
+    console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
 
 } catch (error) {
     core.setFailed(error.message);

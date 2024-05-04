@@ -31148,14 +31148,56 @@ function getTags(pattern) {
     }
 }
 
-try {
+/**
+ * Extracts revision numbers from a list of tag strings, finds the highest revision number, increments it,
+ * and returns the next version of the tag. If no tags are provided, returns the tag with the revision number set to 1.
+ * @param {string[]} tagArray An array of tag strings.
+ * @param {string} tagFormat The format string for the tag which includes a ${revision} placeholder for the revision number.
+ * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
+ */
+function getNextVersion(tagArray, tagFormat) {
+    if (tagArray.length === 0) {
+        // If no tags are present, return the tag with revision number set to 1
+        return tagFormat.replace('${revision}', '1');
+    }
 
+    // Create a regular expression to match the revision part of the tag based on the provided format
+    // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+)
+    const revisionRegex = new RegExp(tagFormat.replace('${revision}', '(\\d+)').replace(/\./g, '\\.'));
+
+    // Initialize the highest revision number
+    let highestRevision = 0;
+
+    // Iterate over each tag in the array
+    tagArray.forEach(tag => {
+        // Match the tag against the regex
+        const match = tag.match(revisionRegex);
+        if (match) {
+            // Parse the revision number and compare it to the current highest number
+            const revisionNumber = parseInt(match[1], 10);
+            if (revisionNumber > highestRevision) {
+                highestRevision = revisionNumber;
+            }
+        }
+    });
+
+    // Increment the highest revision number by 1
+    const nextRevisionNumber = highestRevision + 1;
+
+    // Return the new tag with the incremented revision number
+    return tagFormat.replace('${revision}', nextRevisionNumber);
+}
+
+try {
     // Generate regex pattern to be used to filter tags
     const regexPattern = generateRegexPattern(tagFormat);
     console.log('\x1b[33m%s\x1b[0m', `Regex pattern: ${regexPattern}`);
 
-    tags = getTags(regexPattern);
+    const tags = getTags(regexPattern);
     console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);
+
+    const nextVersion = getNextVersion(tags, tagFormat);
+    console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
 
 } catch (error) {
     core.setFailed(error.message);

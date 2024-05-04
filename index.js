@@ -2,8 +2,6 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');
 
-const tagFormat = core.getInput('tag-format');
-
 // Log tag format.
 console.log('\x1b[33m%s\x1b[0m', `Tag format: ${tagFormat}`);
 
@@ -26,7 +24,7 @@ function resolveTagFormat(tagFormat) {
 
     // Replace placeholders with actual year and month
     return tagFormat.replace('${year}', year)
-                       .replace('${month}', month)
+                    .replace('${month}', month)
 }
 
 /**
@@ -72,6 +70,8 @@ function getTags(tagFormat) {
  * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
  */
 function getNextVersion(tagArray, tagFormat) {
+    // TODO: Add support for version increment based on your versioning scheme (e.g., semantic versioning)?
+
     if (tagArray.length === 0) {
         // If no tags are present, return the tag with revision number set to 1
         return tagFormat.replace('${rev}', '1');
@@ -81,12 +81,9 @@ function getNextVersion(tagArray, tagFormat) {
     // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+)
     const revisionRegex = new RegExp(tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.'));
 
-    // Initialize the highest revision number
     let highestRevision = 0;
 
-    // Iterate over each tag in the array
     tagArray.forEach(tag => {
-        // Match the tag against the regex
         const match = tag.match(revisionRegex);
         if (match) {
             // Parse the revision number and compare it to the current highest number
@@ -97,22 +94,31 @@ function getNextVersion(tagArray, tagFormat) {
         }
     });
 
-    // Increment the highest revision number by 1
     const nextRevisionNumber = highestRevision + 1;
 
-    // Return the new tag with the incremented revision number
     return tagFormat.replace('${rev}', nextRevisionNumber);
 }
 
-try {
-    const resolvedTagFormat = resolveTagFormat(tagFormat);
+/**
+ * Main function that orchestrates the execution of the action.
+ */
+function run() {
+    try {
+        const tagFormat = core.getInput('tag-format');
 
-    const tags = getTags(resolvedTagFormat);
-    console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);
+        const resolvedTagFormat = resolveTagFormat(tagFormat);
 
-    const nextVersion = getNextVersion(tags, resolvedTagFormat);
-    console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
+        const tags = getTags(resolvedTagFormat);
+        console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);
 
-} catch (error) {
-    core.setFailed(error.message);
+        const nextVersion = getNextVersion(tags, resolvedTagFormat);
+        console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
+
+        core.setOutput('version', nextVersion);
+
+    } catch (error) {
+        core.setFailed(error.message);
+    }
 }
+
+run();

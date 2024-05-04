@@ -2,16 +2,6 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');
 
-// Log tag format.
-console.log('\x1b[33m%s\x1b[0m', `Tag format: ${tagFormat}`);
-
-// List all existing tags.
-// Filter tags that match the current app's pattern.
-// Extract the version part from these tags.
-// Sort them to find the highest version.
-// Increment the version based on your versioning scheme (e.g., semantic versioning).
-
-
 /**
  * Resolves the tag format by replacing placeholders with actual year and month values.
  * @param {string} tagFormat

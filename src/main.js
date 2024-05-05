@@ -6,16 +6,17 @@ const { execSync } = require('child_process');
 /**
  * Resolves the tag format by replacing placeholders with actual year and month values.
  * @param {string} tagFormat
- * @returns {string} resolved tag format.
+ * @param {Object} versionObject Optional JSON object containing custom values for 'year' and 'month'.
+ * @returns {string} Resolved tag format.
  */
-function resolveTagFormat(tagFormat) {
+function resolveTagFormat(tagFormat, versionObject) {
     const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // +1 because getMonth() is zero-indexed
+    let year = versionObject?.year || currentDate.getFullYear();
+    let month = versionObject?.month || currentDate.getMonth() + 1; // +1 because getMonth() is zero-indexed
+    month = String(month).padStart(2, '0'); // Ensure month is always two digits
 
     // Replace placeholders with actual year and month
-    return tagFormat.replace('${year}', year)
-                    .replace('${month}', month)
+    return tagFormat.replace('${year}', year).replace('${month}', month);
 }
 
 /**
@@ -68,7 +69,8 @@ function getNextVersion(tagArray, tagFormat) {
     }
 
     // Create a regular expression to match the revision part of the tag based on the provided format
-    // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+)
+    // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+).
+    // Replace all '.' characters with '\.' to escape them in the regex.
     const revisionRegex = new RegExp(tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.'));
 
     let highestRevision = 0;
@@ -98,13 +100,14 @@ async function run() {
         const tagFormat = core.getInput('tag-format');
         const versionFile = core.getInput('version-file');
 
-        const resolvedTagFormat = resolveTagFormat(tagFormat);
+        let versionObject;
 
         if (versionFile && fs.existsSync(versionFile)) {
             const versionString = fs.readFileSync(versionFile, 'utf8');
-            const versionObject = JSON.parse(versionString);
+            versionObject = JSON.parse(versionString);
             console.log('\x1b[33m%s\x1b[0m', `Version file content: ${JSON.stringify(versionObject)}`);
         }
+        const resolvedTagFormat = resolveTagFormat(tagFormat, versionObject);
 
         const tags = getTags(resolvedTagFormat);
         console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);

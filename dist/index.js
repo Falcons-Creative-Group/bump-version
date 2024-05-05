@@ -29198,13 +29198,13 @@ const { execSync } = __nccwpck_require__(2081);
 
 /**
  * Resolves the tag format by replacing placeholders with actual year and month values.
- * @param {string} tagFormat
+ * @param {string} tagFormat The tag format string that may contain placeholders for 'year' and 'month'.
  * @param {Object} versionObject Optional JSON object containing custom values for 'year' and 'month'.
  * @returns {string} Resolved tag format.
  */
 function resolveTagFormat(tagFormat, versionObject) {
     const currentDate = new Date();
-    let year = versionObject?.year || currentDate.getFullYear();
+    const year = versionObject?.year || currentDate.getFullYear();
     let month = versionObject?.month || currentDate.getMonth() + 1; // +1 because getMonth() is zero-indexed
     month = String(month).padStart(2, '0'); // Ensure month is always two digits
 
@@ -29215,13 +29215,10 @@ function resolveTagFormat(tagFormat, versionObject) {
 /**
  * Fetches git tags and filters them based on a provided regex pattern. If no pattern is provided,
  * it returns all git tags.
- * @param {string} [pattern] The optional regex pattern to filter the tags.
+ * @param {string} pattern The optional regex pattern to filter the tags.
  * @returns {string[]} An array of tags that match the given pattern, or all tags if no pattern is provided.
  */
-function getTags(tagFormat) {
-    // Generate regex pattern to be used to filter tags
-    const pattern = tagFormat.replace('${rev}', '\\d+');
-    console.log('\x1b[33m%s\x1b[0m', `Regex pattern: ${pattern}`);
+function getTags(pattern) {
 
     try {
         // Fetch all tags from remote to ensure the local repository is up to date
@@ -29254,15 +29251,8 @@ function getTags(tagFormat) {
  * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
  */
 function getNextVersion(tagArray, tagFormat) {
-    // TODO: Add support for version increment based on your versioning scheme (e.g., semantic versioning)?
-
-    if (tagArray.length === 0) {
-        // If no tags are present, return the tag with revision number set to 1
-        return tagFormat.replace('${rev}', '1');
-    }
-
     // Create a regular expression to match the revision part of the tag based on the provided format
-    // Replace the ${revision} placeholder with a regex group to capture revision numbers (\d+).
+    // Replace the ${rev} placeholder with a regex group to capture revision numbers (\d+)
     // Replace all '.' characters with '\.' to escape them in the regex.
     const revisionRegex = new RegExp(tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.'));
 
@@ -29298,15 +29288,19 @@ async function run() {
         if (versionFile && fs.existsSync(versionFile)) {
             const versionString = fs.readFileSync(versionFile, 'utf8');
             versionObject = JSON.parse(versionString);
-            console.log('\x1b[33m%s\x1b[0m', `Version file content: ${JSON.stringify(versionObject)}`);
+            console.log(`Version file content: ${JSON.stringify(versionObject)}`);
         }
         const resolvedTagFormat = resolveTagFormat(tagFormat, versionObject);
 
-        const tags = getTags(resolvedTagFormat);
-        console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);
+				// Generate regex pattern to be used to filter tags
+				const pattern = resolvedTagFormat.replace('${rev}', '\\d+');
+				console.log(`Regex pattern: ${pattern}`);
+
+        const tags = getTags(pattern);
+        console.log(`Tags: ${tags}`);
 
         const nextVersion = getNextVersion(tags, resolvedTagFormat);
-        console.log('\x1b[33m%s\x1b[0m', `Next version: ${nextVersion}`);
+        console.log(`Next version: ${nextVersion}`);
 
         core.setOutput('version', nextVersion);
 

@@ -46,9 +46,8 @@ function getTags(tagFormat) {
         // Filter the tags based on the regex pattern
         return tags.filter(tag => regex.test(tag));
     } catch (error) {
-        // Handle and log any errors that occur during execution
         console.error(`Failed to fetch or filter tags: ${error.message}`);
-        return [];  // Return an empty array in case of error
+        return [];
     }
 }
 
@@ -91,8 +90,9 @@ function getNextVersion(tagArray, tagFormat) {
 
 /**
  * Main function that orchestrates the execution of the action.
+ * @returns {Promise<void>} A promise that resolves when the action has completed.
  */
-function run() {
+async function run() {
     try {
         const tagFormat = core.getInput('tag-format');
 
@@ -106,9 +106,15 @@ function run() {
 
         core.setOutput('version', nextVersion);
 
+        // Output the payload for debugging
+        core.info(
+            `The event payload: ${JSON.stringify(github.context.payload, null, 2)}`
+        )
     } catch (error) {
         core.setFailed(error.message);
     }
 }
 
-run();
+module.exports = {
+    run
+}

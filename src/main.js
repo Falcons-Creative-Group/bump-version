@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const fs = require('fs');
 const { execSync } = require('child_process');
 
 /**
@@ -95,8 +96,15 @@ function getNextVersion(tagArray, tagFormat) {
 async function run() {
     try {
         const tagFormat = core.getInput('tag-format');
+        const versionFile = core.getInput('version-file');
 
         const resolvedTagFormat = resolveTagFormat(tagFormat);
+
+        if (versionFile && fs.existsSync(versionFile)) {
+            const versionString = fs.readFileSync(versionFile, 'utf8');
+            const versionObject = JSON.parse(versionString);
+            console.log('\x1b[33m%s\x1b[0m', `Version file content: ${JSON.stringify(versionObject)}`);
+        }
 
         const tags = getTags(resolvedTagFormat);
         console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);

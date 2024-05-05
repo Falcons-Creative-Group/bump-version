@@ -29193,6 +29193,7 @@ function wrappy (fn, cb) {
 
 const core = __nccwpck_require__(8021);
 const github = __nccwpck_require__(4366);
+const fs = __nccwpck_require__(7147);
 const { execSync } = __nccwpck_require__(2081);
 
 /**
@@ -29288,8 +29289,15 @@ function getNextVersion(tagArray, tagFormat) {
 async function run() {
     try {
         const tagFormat = core.getInput('tag-format');
+        const versionFile = core.getInput('version-file');
 
         const resolvedTagFormat = resolveTagFormat(tagFormat);
+
+        if (versionFile && fs.existsSync(versionFile)) {
+            const versionString = fs.readFileSync(versionFile, 'utf8');
+            const versionObject = JSON.parse(versionString);
+            console.log('\x1b[33m%s\x1b[0m', `Version file content: ${JSON.stringify(versionObject)}`);
+        }
 
         const tags = getTags(resolvedTagFormat);
         console.log('\x1b[33m%s\x1b[0m', `Tags: ${tags}`);

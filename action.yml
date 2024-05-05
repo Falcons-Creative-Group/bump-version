@@ -5,6 +5,10 @@ inputs:
     description: 'Tag format'
     required: true
     default: 'v'
+  version-file:
+    description: 'The path to the version file'
+    required: false
+    default: None
 outputs:
   version:
     description: 'Version'

@@ -62,6 +62,7 @@ function getNextVersion(tagArray, tagFormat) {
   // Replace the ${rev} placeholder with a regex group to capture revision numbers (\d+)
   // Replace all '.' characters with '\.' to escape them in the regex.
   const revisionRegex = new RegExp(tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.'));
+	console.log(`Revision regex: ${revisionRegex}`);
 
   let highestRevision = 0;
 

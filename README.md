@@ -6,7 +6,7 @@ This GitHub Action automates the process of managing version tags in your Git re
 
 ### `tag-format`
 
-**Required** The tag format string that may contain placeholders for 'year', 'month', and 'revision'. Example: `v${year}.${month}-sg.tk-config-default2.1.4.5.${rev}`
+**Required** The tag format string that may contain placeholders for 'year', 'month', and 'rev'. Example: `v${year}.${month}-sg.tk-config-default2.1.4.5.${rev}`
 
 ### `version-file`
 

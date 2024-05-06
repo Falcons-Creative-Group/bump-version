@@ -29247,7 +29247,7 @@ function getTags(pattern) {
  * Extracts revision numbers from a list of tag strings, finds the highest revision number, increments it,
  * and returns the next version of the tag. If no tags are provided, returns the tag with the revision number set to 1.
  * @param {string[]} tagArray An array of tag strings.
- * @param {string} tagFormat The format string for the tag which includes a ${revision} placeholder for the revision number.
+ * @param {string} tagFormat The format string for the tag which includes a ${rev} placeholder for the revision number.
  * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
  */
 function getNextVersion(tagArray, tagFormat) {

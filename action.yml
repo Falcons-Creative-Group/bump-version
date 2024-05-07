@@ -4,7 +4,7 @@ inputs:
   tag-format:
     description: 'Tag format'
     required: true
-    default: 'v'
+    default: None
   version-file:
     description: 'The path to the version file'
     required: false

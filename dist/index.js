@@ -29315,6 +29315,7 @@ async function run() {
 }
 
 module.exports = {
+	resolveTagFormat,
   run
 };
 

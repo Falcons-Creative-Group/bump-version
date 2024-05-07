@@ -29251,10 +29251,10 @@ function getTags(pattern) {
  *
  * @param {string[]} tagArray An array of version tag strings.
  * @param {string} tagFormat A format string for the tag, including a `${rev}` placeholder for the revision number.
- * @param {boolean} [isReleaseCandidate=false] Flag indicating whether the tag is for a release candidate.
+ * @param {boolean} [releaseCandidate=false] Flag indicating whether the tag is for a release candidate.
  * @returns {string} The next version of the tag, with either the incremented revision number or set to 1 if no tags are present.
  */
-function getNextVersion(tagArray, tagFormat, isReleaseCandidate = false) {
+function getNextVersion(tagArray, tagFormat, releaseCandidate = false) {
   // Create a regex to extract the revision number from the tag. Escape dots and replace `${rev}` with a capture group for digits.
 	const revisionRegex = new RegExp(`${tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.')}$`);
 
@@ -29272,7 +29272,7 @@ function getNextVersion(tagArray, tagFormat, isReleaseCandidate = false) {
   const nextRevisionNumber = highestRevision + 1;
   let nextVersionTag = tagFormat.replace('${rev}', nextRevisionNumber);
 
-  if (isReleaseCandidate) {
+  if (releaseCandidate) {
     // Handle release candidate versions by finding and incrementing the highest RC number.
     const rcRegex = new RegExp(`${nextVersionTag}-rc(\\d+)`);
     const rcVersions = tagArray.filter(tag => rcRegex.test(tag));
@@ -29297,6 +29297,7 @@ async function run() {
   try {
     const tagFormat = core.getInput('tag-format');
     const versionFile = core.getInput('version-file');
+		const releaseCandidate = core.getInput('release-candidate') === 'true';
 
     let versionObject;
 
@@ -29314,7 +29315,7 @@ async function run() {
     const tags = getTags(pattern);
     console.log(`Tags: ${tags}`);
 
-    const nextVersion = getNextVersion(tags, resolvedTagFormat);
+    const nextVersion = getNextVersion(tags, resolvedTagFormat, releaseCandidate);
     console.log(`Next version: ${nextVersion}`);
 
     core.setOutput('version', nextVersion);

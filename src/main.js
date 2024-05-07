@@ -2,6 +2,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const { reverse } = require('dns');
 
 /**
  * Resolves the tag format by replacing placeholders with actual year and month values.
@@ -51,35 +52,48 @@ function getTags(pattern) {
 }
 
 /**
- * Extracts revision numbers from a list of tag strings, finds the highest revision number, increments it,
- * and returns the next version of the tag. If no tags are provided, returns the tag with the revision number set to 1.
- * @param {string[]} tagArray An array of tag strings.
- * @param {string} tagFormat The format string for the tag which includes a ${rev} placeholder for the revision number.
- * @returns {string} The next version of the tag with the incremented revision number or with the revision number set to 1 if no tags are present.
+ * Extracts and increments the highest revision number from a list of version tags.
+ * Handles release candidate versions if specified.
+ * Starts from revision number 1 if no valid tags are found.
+ *
+ * @param {string[]} tagArray An array of version tag strings.
+ * @param {string} tagFormat A format string for the tag, including a `${rev}` placeholder for the revision number.
+ * @param {boolean} [isReleaseCandidate=false] Flag indicating whether the tag is for a release candidate.
+ * @returns {string} The next version of the tag, with either the incremented revision number or set to 1 if no tags are present.
  */
-function getNextVersion(tagArray, tagFormat) {
-  // Create a regular expression to match the revision part of the tag based on the provided format
-  // Replace the ${rev} placeholder with a regex group to capture revision numbers (\d+)
-  // Replace all '.' characters with '\.' to escape them in the regex.
-  const revisionRegex = new RegExp(tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.'));
-	console.log(`Revision regex: ${revisionRegex}`);
+function getNextVersion(tagArray, tagFormat, isReleaseCandidate = false) {
+  // Create a regex to extract the revision number from the tag. Escape dots and replace `${rev}` with a capture group for digits.
+	const revisionRegex = new RegExp(`${tagFormat.replace('${rev}', '(\\d+)').replace(/\./g, '\\.')}$`);
 
   let highestRevision = 0;
 
+  // Find the highest revision number in the existing tags.
   tagArray.forEach(tag => {
     const match = tag.match(revisionRegex);
     if (match) {
-      // Parse the revision number and compare it to the current highest number
-      const revisionNumber = parseInt(match[1], 10);
-      if (revisionNumber > highestRevision) {
-        highestRevision = revisionNumber;
-      }
+      highestRevision = Math.max(highestRevision, parseInt(match[1], 10));
     }
   });
 
+  // Increment the revision number for the next tag.
   const nextRevisionNumber = highestRevision + 1;
+  let nextVersionTag = tagFormat.replace('${rev}', nextRevisionNumber);
 
-  return tagFormat.replace('${rev}', nextRevisionNumber);
+  if (isReleaseCandidate) {
+    // Handle release candidate versions by finding and incrementing the highest RC number.
+    const rcRegex = new RegExp(`${nextVersionTag}-rc(\\d+)`);
+    const rcVersions = tagArray.filter(tag => rcRegex.test(tag));
+
+    const highestRC = rcVersions.reduce((max, tag) => {
+      const rcMatch = tag.match(rcRegex);
+      return Math.max(max, parseInt(rcMatch[1], 10));
+    }, 0);
+
+    // Append incremented RC version to the next tag.
+    nextVersionTag += `-rc${highestRC + 1}`;
+  }
+
+  return nextVersionTag;
 }
 
 /**
@@ -123,5 +137,6 @@ async function run() {
 
 module.exports = {
 	resolveTagFormat,
+	getNextVersion,
   run
 };

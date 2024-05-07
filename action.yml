@@ -9,6 +9,10 @@ inputs:
     description: 'The path to the version file'
     required: false
     default: None
+  is-release-candidate:
+    description: 'Is release candidate'
+    required: false
+    default: false
 outputs:
   version:
     description: 'Version'

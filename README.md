@@ -89,5 +89,5 @@ npm install --save-dev jest
 2. To run the tests, use the following command:
 
 ```
-npx jest --verbose
+npm test
 ```

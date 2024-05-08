@@ -20,3 +20,18 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Test
+        id: npm-test
+        run: npm run test

@@ -1,0 +1,21 @@
+name: 'Automated version bump for internal monorepo'
+description: 'Automated version bump for internal monorepo'
+inputs:
+  tag-format:
+    description: 'Tag format'
+    required: false
+    default: 'v{rev}'
+  version-file:
+    description: 'The path to the version file'
+    required: false
+    default: None
+  release-candidate:
+    description: 'Is release candidate'
+    required: false
+    default: false
+outputs:
+  version:
+    description: 'Version'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

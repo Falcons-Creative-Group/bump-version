@@ -52,8 +52,8 @@ jobs:
         id: version-increment
         uses: Falcons-Creative-Group/bump-version@main
         with:
-          tag-format: '${year}.${month}-sg.tk-config-default2.1.4.5.${rev}'
-          version-file: 'version.json'
+          tag-format: "${year}.${month}-sg.tk-config-default2.1.4.5.${rev}"
+          version-file: "version.json"
           release-candidate: ${{ fromJSON(needs.is-prerelease.outputs.is-prerelease) }}
 
       - name: Print out new version
@@ -69,6 +69,7 @@ To build the action before deploying or testing, sue the following steps:
 ```
 npm install -g @vercel/ncc
 ```
+
 This will install ncc globally on your machine, allowing you to use it for any project.
 
 2. Navigate to the root directory of your project and run:
@@ -76,6 +77,7 @@ This will install ncc globally on your machine, allowing you to use it for any p
 ```
 ncc build ./src/index.js
 ```
+
 This command compiles the source code located in ./src/index.js into a single minified JavaScript file in the dist directory. This file includes all dependencies, which are necessary for the action to run in GitHub's environment.
 
 ## Testing

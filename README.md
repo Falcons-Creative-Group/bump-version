@@ -6,11 +6,11 @@ This GitHub Action automates the process of managing version tags in your Git re
 
 ### `tag-format`
 
-**Required** The tag format string that may contain placeholders for 'year', 'month', and 'rev'. Example: `v${year}.${month}-sg.tk-config-default2.1.4.5.${rev}`
+Optional. The tag format string that may contain placeholders for dynamic elements. The current supported placeholders are `${rev}`, `${year}`, and `${month}`. You can include a long prefix such as `${year}.${month}-sg.tk-config-default2.1.4.5.${rev}` to create complex tag structures tailored to your project's needs. Example: `v${rev}`. This input is not required, and if not provided, the default format used will be `v${rev}`, which increments the revision number with each new tag.
 
 ### `version-file`
 
-The path to a JSON file containing custom values for 'year' and 'month'. If provided, these values will be used to replace placeholders in the tag format.
+Optional. The path to a JSON file containing custom values for 'year' and 'month'. If provided, these values will be used to replace placeholders in the tag format. If `version-file` is not provided, the action will default to using the current year and month for the placeholders.
 
 ### `release-candidate`
 

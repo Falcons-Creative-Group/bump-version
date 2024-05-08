@@ -3,8 +3,8 @@ description: 'Automated version bump for internal monorepo'
 inputs:
   tag-format:
     description: 'Tag format'
-    required: true
-    default: None
+    required: false
+    default: 'v{rev}'
   version-file:
     description: 'The path to the version file'
     required: false
